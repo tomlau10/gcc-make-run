@@ -1,5 +1,5 @@
 ###
-# originated from rgbkrk/atom-script - lib/script-options-view.coffee
+# heavily modified from rgbkrk/atom-script - lib/script-options-view.coffee
 # https://github.com/rgbkrk/atom-script
 # https://atom.io/packages/script
 ###
@@ -8,101 +8,85 @@
 {View} = require 'atom-space-pen-views'
 
 module.exports =
-class ScriptOptionsView extends View
+class RunOptionsView extends View
 
   @content: ->
     @div =>
-      @div class: 'overlay from-top panel options-view', outlet: 'scriptOptionsView', =>
-        @div class: 'panel-heading', 'Configure Run Options'
+      @div class: 'overlay from-top panel run-options-view', outlet: 'runOptionsView', =>
+        @div class: 'panel-heading', 'Configure Compile-Run Options'
         @table =>
           @tr =>
-            @td => @label 'Current Working Directory:'
+            @td => @label 'Compiler Flags:'
             @td =>
               @input
                 keydown: 'traverseFocus'
                 type: 'text'
                 class: 'editor mini native-key-bindings'
-                outlet: 'inputCwd'
+                outlet: 'cflags'
           @tr =>
-            @td => @label 'Command'
+            @td => @label 'Link Libraries:'
             @td =>
               @input
                 keydown: 'traverseFocus'
                 type: 'text'
                 class: 'editor mini native-key-bindings'
-                outlet: 'inputCommand'
+                outlet: 'ldlibs'
           @tr =>
-            @td => @label 'Command Arguments:'
+            @td => @label 'Run Arguments:'
             @td =>
               @input
                 keydown: 'traverseFocus'
                 type: 'text'
                 class: 'editor mini native-key-bindings'
-                outlet: 'inputCommandArgs'
-          @tr =>
-            @td => @label 'Program Arguments:'
-            @td =>
-              @input
-                keydown: 'traverseFocus'
-                type: 'text'
-                class: 'editor mini native-key-bindings'
-                outlet: 'inputScriptArgs'
-          @tr =>
-            @td => @label 'Environment Variables:'
-            @td =>
-              @input
-                keydown: 'traverseFocus'
-                type: 'text'
-                class: 'editor mini native-key-bindings'
-                outlet: 'inputEnv'
+                outlet: 'args'
         @div class: 'block buttons', =>
           css = 'btn inline-block-tight'
-          @button class: "btn #{css} cancel", click: 'close', =>
-            @span class: 'icon icon-x', 'Cancel'
           @button class: "btn #{css} run", outlet: 'buttonRun', click: 'run', =>
             @span class: 'icon icon-playback-play', 'Run'
+          @button class: "btn #{css} cancel", outlet: 'buttonCancel', click: 'cancel', =>
+            @span class: 'icon icon-x', 'Cancel'
 
-  initialize: (@runOptions) ->
+  initialize: (@controller) ->
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.commands.add 'atom-workspace',
-      'core:cancel': => @toggleScriptOptions('hide')
-      'core:close': => @toggleScriptOptions('hide')
-      'script:close-options': => @toggleScriptOptions('hide')
-      'script:run-options': => @toggleScriptOptions()
-      'script:save-options': => @saveOptions()
+      'core:cancel': => @toggleRunOptions('hide')
+      'core:close': => @toggleRunOptions('hide')
+      'gcc-make-run:run-options': => @toggleRunOptions()
     atom.workspace.addTopPanel(item: this)
-    @toggleScriptOptions 'hide'
-
-  toggleScriptOptions: (command) ->
-    switch command
-      when 'show'
-        @scriptOptionsView.show()
-        @inputCwd.focus()
-      when 'hide' then @scriptOptionsView.hide()
-      else
-        @scriptOptionsView.toggle()
-        @inputCwd.focus() if @scriptOptionsView.is(':visible')
-
-  saveOptions: ->
-    splitArgs = (element) ->
-      item for item in element.val().split ' ' when item isnt ''
-
-    @runOptions.workingDirectory = @inputCwd.val()
-    @runOptions.cmd = @inputCommand.val()
-    @runOptions.cmdArgs = splitArgs @inputCommandArgs
-    @runOptions.env = @inputEnv.val()
-    @runOptions.scriptArgs = splitArgs @inputScriptArgs
-
-  close: ->
-    @toggleScriptOptions('hide')
+    atom.config.onDidChange(=> @restoreOptions())
+    @restoreOptions()
+    @toggleRunOptions 'hide'
 
   destroy: ->
     @subscriptions?.dispose()
 
+  toggleRunOptions: (command) ->
+    switch command
+      when 'show'
+        @runOptionsView.show()
+        @cflags.focus()
+      when 'hide'
+        @runOptionsView.hide()
+        @restoreOptions()
+      else
+        @runOptionsView.toggle()
+        @cflags.focus() if @runOptionsView.is(':visible')
+
+  restoreOptions: ->
+    cfgs = ['cflags', 'ldlibs', 'args']
+    @[cfg].val(atom.config.get("gcc-make-run.#{cfg}")) for cfg in cfgs
+
+  saveOptions: ->
+    cfgs = ['cflags', 'ldlibs', 'args']
+    atom.config.set("gcc-make-run.#{cfg}", @[cfg].val()) for cfg in cfgs
+
   run: ->
     @saveOptions()
-    @toggleScriptOptions('hide')
-    atom.commands.dispatch @workspaceView(), 'script:run'
+    @toggleRunOptions('hide')
+    atom.commands.dispatch @workspaceView(), 'gcc-make-run:compile-run'
+
+  cancel: ->
+    @toggleRunOptions('hide')
 
   traverseFocus: (e) ->
     return true if e.keyCode != 9

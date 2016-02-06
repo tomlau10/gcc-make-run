@@ -2,21 +2,17 @@
 'context-menu':
   'atom-text-editor': [
     {
-      'label': 'Toggle gcc-make-run'
-      'command': 'gcc-make-run:toggle'
+      'label': 'Compile Run'
+      'command': 'gcc-make-run:compile-run'
+    },
+    {
+      'label': 'Toggle Run Options'
+      'command': 'gcc-make-run:run-options'
+    }
+  ],
+  '.tree-view .file > .name': [
+    {
+      'label': 'Make Run',
+      'command': 'gcc-make-run:make-run'
     }
   ]
-'menu': [
-  {
-    'label': 'Packages'
-    'submenu': [
-      'label': 'gcc-make-run'
-      'submenu': [
-        {
-          'label': 'Toggle'
-          'command': 'gcc-make-run:toggle'
-        }
-      ]
-    ]
-  }
-]

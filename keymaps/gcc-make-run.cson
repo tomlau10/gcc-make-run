@@ -8,4 +8,5 @@
 # For more detailed documentation see
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-workspace':
-  'ctrl-alt-o': 'gcc-make-run:toggle'
+  'f6': 'gcc-make-run:compile-run'
+  'ctrl-f6': 'gcc-make-run:run-options'
