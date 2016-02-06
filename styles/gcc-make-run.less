@@ -1,0 +1,96 @@
+/*
+* originated from rgbkrk/atom-script - styles/script.less
+* https://github.com/rgbkrk/atom-script
+* https://atom.io/packages/script
+*/
+
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+.header-view {
+  .heading-status {
+    padding-left: 9px;
+  }
+
+  .icon-alert {
+    color: @text-color-warning;
+  }
+
+  .icon-check {
+    color: @text-color-success;
+  }
+
+  .icon-hourglass {
+    color: @text-color;
+  }
+
+  .icon-stop {
+    color: @text-color-error;
+  }
+}
+
+.options-view {
+  table {
+    width: 100%;
+    margin-top: 5px;
+
+    td {
+      padding: 5px;
+      vertical-align: middle;
+
+      input {
+        width: 100%;
+        color: @text-color;
+        height: @component-line-height;
+        line-height: @component-line-height;
+        background-color: @button-background-color;
+        border-radius: @component-border-radius;
+        border: 1px solid @input-border-color;
+        padding-left: 0.8rem;
+      }
+      input:focus {
+        color: @text-color-highlight;
+        background-color: @button-background-color-hover;
+      }
+    }
+
+    td:first-child {
+      width: 15rem;
+      text-align: right;
+    }
+  }
+
+  .buttons {
+    padding: 5px;
+
+    .cancel {
+      float: left;
+    }
+    .run {
+      float: right;
+    }
+  }
+}
+
+.script-view {
+  .panel-body pre {
+    background: @tool-panel-background-color;
+    color: @text-color;
+  }
+
+  .output {
+  }
+
+  .stderr {
+    color: @text-color-error;
+  }
+
+  .line {
+    border-radius: 0px;
+    margin: 0px;
+    padding: 0px;
+  }
+}

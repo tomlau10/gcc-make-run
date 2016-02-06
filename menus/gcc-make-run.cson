@@ -1,0 +1,22 @@
+# See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Toggle gcc-make-run'
+      'command': 'gcc-make-run:toggle'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'gcc-make-run'
+      'submenu': [
+        {
+          'label': 'Toggle'
+          'command': 'gcc-make-run:toggle'
+        }
+      ]
+    ]
+  }
+]
