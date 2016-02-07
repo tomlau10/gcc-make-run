@@ -42,7 +42,11 @@ class RunOptionsView extends View
         @div class: 'block buttons', =>
           css = 'btn inline-block-tight'
           @button class: "btn #{css} run", outlet: 'buttonRun', click: 'run', =>
-            @span class: 'icon icon-playback-play', 'Run'
+            @span class: 'icon icon-triangle-right', 'Run'
+          @button class: "btn #{css} rebuild", outlet: 'buttonReBuild', click: 'rebuild', =>
+            @span class: 'icon icon-sync', 'Re-Build'
+          @button class: "btn #{css} save", outlet: 'buttonSave', click: 'save', =>
+            @span class: 'icon icon-clippy', 'Save'
           @button class: "btn #{css} cancel", outlet: 'buttonCancel', click: 'cancel', =>
             @span class: 'icon icon-x', 'Cancel'
 
@@ -84,6 +88,17 @@ class RunOptionsView extends View
     @saveOptions()
     @toggleRunOptions('hide')
     atom.commands.dispatch @workspaceView(), 'gcc-make-run:compile-run'
+
+  rebuild: ->
+    @saveOptions()
+    @toggleRunOptions('hide')
+    @controller.onceRebuild = true
+    atom.commands.dispatch @workspaceView(), 'gcc-make-run:compile-run'
+
+  save: ->
+    @saveOptions()
+    @toggleRunOptions('hide')
+    atom.notifications.addSuccess('Run Options Saved')
 
   cancel: ->
     @toggleRunOptions('hide')

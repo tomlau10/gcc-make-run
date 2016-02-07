@@ -6,8 +6,10 @@
 
 GccMakeRunView = require './gcc-make-run-view'
 {CompositeDisposable} = require 'atom'
-{parse} = require 'path'
-{exec} = require 'child_process'
+{parse, join} = require 'path'
+{exec, execSync} = require 'child_process'
+{statSync} = require 'fs'
+{_extend} = require 'util'
 
 module.exports = GccMakeRun =
   config:
@@ -53,9 +55,12 @@ module.exports = GccMakeRun =
       default: ''
       order: 7
       description: 'Arguments for executing, eg: 1 "2 3"'
-
   gccMakeRunView: null
+  onceRebuild: false
 
+  ###
+  # package setup
+  ###
   activate: (state) ->
     @gccMakeRunView = new GccMakeRunView(@)
     atom.commands.add 'atom-workspace', 'gcc-make-run:compile-run': => @compile()
@@ -67,6 +72,9 @@ module.exports = GccMakeRun =
   serialize: ->
     gccMakeRunViewState: @gccMakeRunView.serialize()
 
+  ###
+  # compile and make run
+  ###
   compile: () ->
     # get editor
     editor = atom.workspace.getActiveTextEditor()
@@ -94,52 +102,50 @@ module.exports = GccMakeRun =
     # get config
     info = parse(editor.getPath())
     info.useMake = false;
-    info.exe = "#{info.name}.exe"
+    info.exe = info.name + if process.platform == 'win32' then '.exe' else ''
     compiler = atom.config.get("gcc-make-run.#{grammar}")
     cflags = atom.config.get('gcc-make-run.cflags')
     ldlibs = atom.config.get('gcc-make-run.ldlibs')
 
-    # compile
-    cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.name}\" #{ldlibs}"
-    atom.notifications.addInfo(cmd)
-    exec(cmd , { cwd: info.dir }, @onBuildFinished.bind(@, info))
+    # check if update needed before compile
+    if !@shouldUncondBuild() && @isExeUpToDate(info)
+        @run(info)
+    else
+      cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.name}\" #{ldlibs}"
+      atom.notifications.addInfo(cmd)
+      exec(cmd , { cwd: info.dir }, @onBuildFinished.bind(@, info))
 
   make: (srcPath) ->
     # get config
     info = parse(srcPath)
     info.useMake = true;
     mk = atom.config.get('gcc-make-run.make')
+    mkFlags = if @shouldUncondBuild() then '-B' else ''
 
     # make
-    cmd = "\"#{mk}\" -f \"#{info.base}\""
+    cmd = "\"#{mk}\" #{mkFlags} -f \"#{info.base}\""
     atom.notifications.addInfo('Start Building...')
     exec(cmd, { cwd: info.dir }, @onBuildFinished.bind(@, info))
 
   onBuildFinished: (info, error, stdout, stderr) ->
     # notifications about compilation status
+    hasCompiled = (stdout?.indexOf('up to date') < 0 && stdout?.indexOf('to be done') < 0) || !stdout?
     atom.notifications[if error then 'addError' else 'addWarning'](stderr.replace(/\n/g, '<br>'), { dismissable: true }) if stderr
-    atom.notifications.addInfo(stdout.replace(/\n/g, '<br>')) if stdout
+    atom.notifications[if hasCompiled then 'addInfo' else 'addSuccess'](stdout.replace(/\n/g, '<br>')) if stdout
 
     # continue only if no error
     return if error
-    atom.notifications.addSuccess('Build Success')
+    atom.notifications.addSuccess('Build Success') if hasCompiled
     @run(info)
 
   run: (info) ->
-    # get config
-    mk = atom.config.get('gcc-make-run.make')
-    args = atom.config.get('gcc-make-run.args')
-
     # build the run cmd
-    if info.useMake
-      # TODO: use make run
-      console.log 'make run'
-    else
-      info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{args} && pause || pause\""
+    return unless @checkMakeRunTarget(info)
+    return unless @buildRunCmd(info)
 
-      # run the cmd
-      console.log info.cmd
-      exec(info.cmd, { cwd: info.dir, env: info.env }, @onRunFinished.bind(@))
+    # run the cmd
+    console.log info.cmd
+    exec(info.cmd, { cwd: info.dir, env: info.env }, @onRunFinished.bind(@))
 
   onRunFinished: (error, stdout, stderr) ->
     # debug use
@@ -152,3 +158,71 @@ module.exports = GccMakeRun =
     if stderr
       console.log 'stderr:'
       console.log stderr
+
+  ###
+  # helper functions
+  ###
+  isExeUpToDate: (info) ->
+    # check src and exe modified time
+    srcTime = statSync(join(info.dir, info.base)).mtime.getTime()
+    try
+      exeTime = statSync(join(info.dir, info.exe)).mtime.getTime()
+    catch error
+      exeTime = 0
+
+    if srcTime < exeTime
+      atom.notifications.addSuccess("'#{info.exe}' is up to date")
+      return true
+    return false
+
+  checkMakeRunTarget: (info) ->
+    # return if not using Makefile
+    return true if !info.useMake
+
+    mk = atom.config.get("gcc-make-run.make")
+    info.exe = undefined
+
+    # try make run to get the target
+    try
+      info.exe = execSync("\"#{mk}\" -nf \"#{info.base}\" run", { cwd: info.dir, stdio: [], encoding: 'utf8' }).trim();
+      if process.platform == 'win32' && info.exe.indexOf('.exe') != -1 then info.exe += '.exe'
+      return true
+    catch error
+      # cannot get target
+      atom.notifications.addError("""
+        Target 'run' is not specified in #{info.base}, cannot run output automatically<br>
+        Example 'run' target:<br>
+        <pre>
+        run:
+          excutable $(ARGS)
+        </pre>"""
+        , { dismissable: true}
+      )
+      return false
+
+  shouldUncondBuild: ->
+    ret = @onceRebuild || atom.config.get('gcc-make-run.uncondBuild')
+    @onceRebuild = false
+    return ret
+
+  buildRunCmd: (info) ->
+    # get config
+    mk = atom.config.get('gcc-make-run.make')
+    info.env = _extend({ ARGS: atom.config.get('gcc-make-run.args') }, process.env)
+
+    if info.useMake
+      switch process.platform
+        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run && pause || paues\""
+        # TODO: when 'linux' then
+        # TODO: when 'darwin' then
+    else
+      # normal run
+      switch process.platform
+        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{info.env.ARGS} && pause || pause\""
+        # TODO: when 'linux' then
+        # TODO: when 'darwin' then
+
+    # check if cmd is built
+    return true if info.cmd?
+    atom.notifications.addError('Execution after compiling is not supported on your OS')
+    return false
