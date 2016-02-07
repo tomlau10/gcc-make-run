@@ -2,12 +2,59 @@
 
 Compile and run C/C++ source code and execute Makefile in Atom.
 
-## Features *(tentative)*
+
+
+## Preface
+
+I am a window user and just switched to Atom from Notepad++. Previously I wrote a script in NppExec to compile-run my C/C++ programs and execute Makefiles with customizable compile flags and run options. Atom has numerous community packages and I have tried some. They are really great in certain extent but still cannot fully satisfy my need. Therefore I decided to reference their packages and make my own.
+
+
+
+## Features
+
 - Compile the current actively opened C/C++ file
 - Execute the current actively opened Makefile
-- Execute Mafefile from Tree View
+- Execute Makefile from Tree View
 - Customize compilers used
 - Customize compiler flags
 - Customize run options
 - Shortcut to compile-run
 - Shortcut to access run options panel
+
+
+
+## Setup
+
+### Windows
+For windows users, I recommend installing the [**TDM-GCC**](http://tdm-gcc.tdragon.net/) (*which I am using*), then go to the setting page of this package and change the make utility to `mingw32-make`, after that everything should work.
+
+### Linux/Ubuntu
+For Linux/Ubuntu users, `gcc` && `g++` && `make` should have already been installed, just go ahead with default settings.
+
+### Mac
+For Mac users, you are not required to install Xcode but at least install the **Xcode Command Line Tools**. [This](http://railsapps.github.io/xcode-command-line-tools.html) site has a more detailed walkthrough.
+
+
+
+## Code and Repo Reference
+I am new in CoffeeScript and know little about the Model-View-Controller design, thus my code may be messy. Below are the packages that I used and the repositories that I have referenced. They are great and you may want to try them out!
+- [kriscross07/atom-gpp-compiler](https://atom.io/packages/gpp-compiler)  
+  \+ A simple but useful package to compile-run C/C++ files  
+  \- Cannot customize run arguments  
+  \- On windows the cmd console just flash then close after the C/C++ program ends  
+  \! The closest that I want, thus mine is a remake with enhancements  
+
+- [rgbkrk/atom-script](https://atom.io/packages/script)  
+  \+ Support many languages  
+  \+ Customizable compile and run flags  
+  \- Does not support C/C++ on Windows...  
+  \- Does not support interactive running  
+  \! The option view is extracted from this package  
+
+- [ksxatompackages/cmd-exec](https://atom.io/packages/command-executor)  
+  \+ Can register commands to do many things  
+  \- Troublesome to set up  
+
+- [noseglid/atom-build](https://atom.io/packages/build)  
+  \+ Support automated build  
+  \- Need to specify an auto-build file  

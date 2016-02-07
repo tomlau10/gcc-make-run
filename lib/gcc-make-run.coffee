@@ -150,7 +150,9 @@ module.exports = GccMakeRun =
   onRunFinished: (error, stdout, stderr) ->
     # debug use
     if error
-      atom.notifications.addError('gcc-make-run: Run Command Failed', { detail: stderr })
+      atom.notifications.addError('gcc-make-run: Run Command Failed', { detail: stderr, dismissable: true })
+    if stdout
+      console.log stdout
 
   ###
   # helper functions
@@ -177,7 +179,7 @@ module.exports = GccMakeRun =
 
     # try make run to get the target
     try
-      info.exe = execSync("\"#{mk}\" -nf \"#{info.base}\" run", { cwd: info.dir, stdio: [], encoding: 'utf8' }).match(/[^#\r\n]+/g)[0]
+      info.exe = execSync("\"#{mk}\" -nf \"#{info.base}\" run", { cwd: info.dir, stdio: [], encoding: 'utf8' }).split('#')[0].match(/[^\r\n]+/g)[0]
       if !info.exe || info.exe.indexOf('to be done') >= 0 then throw Error()
       if process.platform == 'win32' && info.exe.indexOf('.exe') != -1 then info.exe += '.exe'
       return true
@@ -207,19 +209,28 @@ module.exports = GccMakeRun =
     mk = atom.config.get('gcc-make-run.make')
     info.env = _extend({ ARGS: atom.config.get('gcc-make-run.args') }, process.env)
 
+
     if info.useMake
       switch process.platform
         when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run && pause || pause\""
-        # TODO: when 'linux' then
-        # TODO: when 'darwin' then
+        when 'linux' then info.cmd = "xterm -hold -T \"#{info.exe}\" -e \"#{mk}\" -sf \"#{info.base}\" run"
+        when 'darwin'
+          info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' +
+            @esc("cd \"#{info.dir}\"; \"#{mk}\" ARGS=\"#{@esc(info.env.ARGS)}\" -sf \"#{info.base}\" run; exit") + '"\''
     else
       # normal run
       switch process.platform
         when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{info.env.ARGS} && pause || pause\""
-        # TODO: when 'linux' then
-        # TODO: when 'darwin' then
+        when 'linux' then info.cmd = "xterm -hold -T \"#{info.exe}\" -e \"./#{info.exe}\" #{info.env.ARGS}"
+        when 'darwin'
+          info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' +
+            @esc("cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; exit") + '"\''
 
     # check if cmd is built
     return true if info.cmd?
     atom.notifications.addError('gcc-make-run: Cannot Execute Output', { detail: 'Execution after compiling is not supported on your OS' })
     return false
+
+  esc: (s) ->
+    # escape double quote
+    s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')

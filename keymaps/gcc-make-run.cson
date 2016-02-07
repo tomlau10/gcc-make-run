@@ -1,12 +1,12 @@
-# Keybindings require three things to be fully defined: A selector that is
-# matched against the focused element, the keystroke and the command to
-# execute.
-#
-# Below is a basic keybinding which registers on all platforms by applying to
-# the root workspace element.
-
 # For more detailed documentation see
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
-'atom-workspace':
+
+# windows and linux
+'.platform-win32 atom-workspace, .platform-linux atom-workspace':
   'f6': 'gcc-make-run:compile-run'
   'ctrl-f6': 'gcc-make-run:run-options'
+
+# darwin
+'.platform-darwin atom-text-editor':
+  'f6': 'gcc-make-run:compile-run'
+  'cmd-f6': 'gcc-make-run:run-options'
