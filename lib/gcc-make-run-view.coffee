@@ -19,7 +19,7 @@ class RunOptionsView extends View
             @td => @label 'Compiler Flags:'
             @td =>
               @input
-                keydown: 'traverseFocus'
+                keydown: 'traverseInputFocus'
                 type: 'text'
                 class: 'editor mini native-key-bindings'
                 outlet: 'cflags'
@@ -27,7 +27,7 @@ class RunOptionsView extends View
             @td => @label 'Link Libraries:'
             @td =>
               @input
-                keydown: 'traverseFocus'
+                keydown: 'traverseInputFocus'
                 type: 'text'
                 class: 'editor mini native-key-bindings'
                 outlet: 'ldlibs'
@@ -35,19 +35,19 @@ class RunOptionsView extends View
             @td => @label 'Run Arguments:'
             @td =>
               @input
-                keydown: 'traverseFocus'
+                keydown: 'traverseInputFocus'
                 type: 'text'
                 class: 'editor mini native-key-bindings'
                 outlet: 'args'
         @div class: 'block buttons', =>
           css = 'btn inline-block-tight'
-          @button class: "btn #{css} run", outlet: 'buttonRun', click: 'run', =>
+          @button class: "btn #{css} run", outlet: 'buttonRun', click: 'run', keydown: 'traverseButtonFocus', =>
             @span class: 'icon icon-triangle-right', 'Run'
-          @button class: "btn #{css} rebuild", outlet: 'buttonReBuild', click: 'rebuild', =>
+          @button class: "btn #{css} rebuild", outlet: 'buttonReBuild', click: 'rebuild', keydown: 'traverseButtonFocus', =>
             @span class: 'icon icon-sync', 'Re-Build'
-          @button class: "btn #{css} save", outlet: 'buttonSave', click: 'save', =>
+          @button class: "btn #{css} save", outlet: 'buttonSave', click: 'save', keydown: 'traverseButtonFocus', =>
             @span class: 'icon icon-clippy', 'Save'
-          @button class: "btn #{css} cancel", outlet: 'buttonCancel', click: 'cancel', =>
+          @button class: "btn #{css} cancel", outlet: 'buttonCancel', click: 'cancel', keydown: 'traverseButtonFocus', =>
             @span class: 'icon icon-x', 'Cancel'
 
   initialize: (@controller) ->
@@ -103,11 +103,37 @@ class RunOptionsView extends View
   cancel: ->
     @toggleRunOptions('hide')
 
-  traverseFocus: (e) ->
-    return true if e.keyCode != 9
+  traverseInputFocus: (e) ->
+    switch e.keyCode
+      # press tab key should change focus
+      when 9
+        # find next/prev input box to focus
+        row = @find(e.target).parents('tr:first')[if e.shiftKey then 'prevAll' else 'nextAll']('tr:first')
+        if row.length
+          row.find('input').focus()
+        # focus run or close button if no input box can be found
+        else
+          if e.shiftKey then @buttonCancel.focus() else @buttonRun.focus()
+      # enter key
+      when 13 then @buttonRun.click()
+    # otherwise ignore
+    return true
 
-    row = @find(e.target).parents('tr:first').nextAll('tr:first')
-    if row.length then row.find('input').focus() else @buttonRun.focus()
+  traverseButtonFocus: (e) ->
+    switch e.keyCode
+      when 9
+        # press tab on close button should focus the first input box
+        if !e.shiftKey && e.target == @buttonCancel.context
+          @cflags.focus()
+          return false
+        # press shift tab on run button should focus the last input box
+        else if e.shiftKey && e.target == @buttonRun.context
+          @args.focus()
+          return false
+      # emulate button click when pressing enter key
+      when 13 then e.target.click()
+    # otherwise ignore
+    return true
 
   workspaceView: ->
     atom.views.getView(atom.workspace)

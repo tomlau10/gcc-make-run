@@ -81,11 +81,11 @@ module.exports = GccMakeRun =
     return unless editor?
 
     # save file
-    try
-      editor.save() if editor.isModified()
-    catch error
-      atom.notifications.addError('Temporary files must be saved first')
+    srcPath = editor.getPath()
+    if !srcPath
+      atom.notifications.addError('gcc-make-run: File Not Saved', { detail: 'Temporary files must be saved first' })
       return
+    editor.save() if editor.isModified()
 
     # get grammar
     grammar = editor.getGrammar().name
@@ -93,10 +93,10 @@ module.exports = GccMakeRun =
       when 'C', 'C++' then
         # do nothing
       when 'Makefile'
-        @make(editor.getPath())
+        @make(srcPath)
         return
       else
-        atom.notifications.addError('Only C, C++ and Makefile are supported')
+        atom.notifications.addError('gcc-make-run: Grammar Not Supported', { detail: 'Only C, C++ and Makefile are supported' })
         return
 
     # get config
@@ -112,7 +112,7 @@ module.exports = GccMakeRun =
         @run(info)
     else
       cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.name}\" #{ldlibs}"
-      atom.notifications.addInfo(cmd)
+      atom.notifications.addInfo('gcc-make-run: Running Command...', { detail: cmd })
       exec(cmd , { cwd: info.dir }, @onBuildFinished.bind(@, info))
 
   make: (srcPath) ->
@@ -124,18 +124,18 @@ module.exports = GccMakeRun =
 
     # make
     cmd = "\"#{mk}\" #{mkFlags} -f \"#{info.base}\""
-    atom.notifications.addInfo('Start Building...')
+    atom.notifications.addInfo('gcc-make-run: Running Command...', { detail: cmd })
     exec(cmd, { cwd: info.dir }, @onBuildFinished.bind(@, info))
 
   onBuildFinished: (info, error, stdout, stderr) ->
     # notifications about compilation status
     hasCompiled = (stdout?.indexOf('up to date') < 0 && stdout?.indexOf('to be done') < 0) || !stdout?
-    atom.notifications[if error then 'addError' else 'addWarning'](stderr.replace(/\n/g, '<br>'), { dismissable: true }) if stderr
-    atom.notifications[if hasCompiled then 'addInfo' else 'addSuccess'](stdout.replace(/\n/g, '<br>')) if stdout
+    atom.notifications[if error then 'addError' else 'addWarning']("gcc-make-run: Compile #{if error then 'Error' else 'Warning'}", { detail: stderr, dismissable: true }) if stderr
+    atom.notifications[if hasCompiled then 'addInfo' else 'addSuccess']('gcc-make-run: Compiler Output', { detail: stdout }) if stdout
 
     # continue only if no error
     return if error
-    atom.notifications.addSuccess('Build Success') if hasCompiled
+    atom.notifications.addSuccess('gcc-make-run: Build Success') if hasCompiled
     @run(info)
 
   run: (info) ->
@@ -150,14 +150,7 @@ module.exports = GccMakeRun =
   onRunFinished: (error, stdout, stderr) ->
     # debug use
     if error
-      console.log 'error:'
-      console.log error
-    if stdout
-      console.log 'stdout:'
-      console.log stdout
-    if stderr
-      console.log 'stderr:'
-      console.log stderr
+      atom.notifications.addError('gcc-make-run: Run Command Failed', { detail: stderr })
 
   ###
   # helper functions
@@ -171,7 +164,7 @@ module.exports = GccMakeRun =
       exeTime = 0
 
     if srcTime < exeTime
-      atom.notifications.addSuccess("'#{info.exe}' is up to date")
+      atom.notifications.addSuccess("gcc-make-run: Output Up To Date", { detail: "'#{info.exe}' is up to date" })
       return true
     return false
 
@@ -184,19 +177,23 @@ module.exports = GccMakeRun =
 
     # try make run to get the target
     try
-      info.exe = execSync("\"#{mk}\" -nf \"#{info.base}\" run", { cwd: info.dir, stdio: [], encoding: 'utf8' }).trim();
+      info.exe = execSync("\"#{mk}\" -nf \"#{info.base}\" run", { cwd: info.dir, stdio: [], encoding: 'utf8' }).match(/[^#\r\n]+/g)[0]
+      if !info.exe || info.exe.indexOf('to be done') >= 0 then throw Error()
       if process.platform == 'win32' && info.exe.indexOf('.exe') != -1 then info.exe += '.exe'
       return true
     catch error
-      # cannot get target
-      atom.notifications.addError("""
-        Target 'run' is not specified in #{info.base}, cannot run output automatically<br>
-        Example 'run' target:<br>
-        <pre>
-        run:
-          excutable $(ARGS)
-        </pre>"""
-        , { dismissable: true}
+      # cannot get run target
+      atom.notifications.addError(
+        "gcc-make-run: Cannot find 'run' target",
+        {
+          detail: """
+            Target 'run' is not specified in #{info.base}
+            Example 'run' target:
+            run:
+              excutable $(ARGS)
+          """,
+          dismissable: true
+        }
       )
       return false
 
@@ -212,7 +209,7 @@ module.exports = GccMakeRun =
 
     if info.useMake
       switch process.platform
-        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run && pause || paues\""
+        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run && pause || pause\""
         # TODO: when 'linux' then
         # TODO: when 'darwin' then
     else
@@ -224,5 +221,5 @@ module.exports = GccMakeRun =
 
     # check if cmd is built
     return true if info.cmd?
-    atom.notifications.addError('Execution after compiling is not supported on your OS')
+    atom.notifications.addError('gcc-make-run: Cannot Execute Output', { detail: 'Execution after compiling is not supported on your OS' })
     return false
