@@ -6,6 +6,8 @@
 
 GccMakeRunView = require './gcc-make-run-view'
 {CompositeDisposable} = require 'atom'
+{parse} = require 'path'
+{exec} = require 'child_process'
 
 module.exports = GccMakeRun =
   config:
@@ -66,13 +68,87 @@ module.exports = GccMakeRun =
     gccMakeRunViewState: @gccMakeRunView.serialize()
 
   compile: () ->
-    console.log 'compile()'
-    # TODO:
+    # get editor
+    editor = atom.workspace.getActiveTextEditor()
+    return unless editor?
+
+    # save file
+    try
+      editor.save() if editor.isModified()
+    catch error
+      atom.notifications.addError('Temporary files must be saved first')
+      return
+
+    # get grammar
+    grammar = editor.getGrammar().name
+    switch grammar
+      when 'C', 'C++' then
+        # do nothing
+      when 'Makefile'
+        @make(editor.getPath())
+        return
+      else
+        atom.notifications.addError('Only C, C++ and Makefile are supported')
+        return
+
+    # get config
+    info = parse(editor.getPath())
+    info.useMake = false;
+    info.exe = "#{info.name}.exe"
+    compiler = atom.config.get("gcc-make-run.#{grammar}")
+    cflags = atom.config.get('gcc-make-run.cflags')
+    ldlibs = atom.config.get('gcc-make-run.ldlibs')
+
+    # compile
+    cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.name}\" #{ldlibs}"
+    atom.notifications.addInfo(cmd)
+    exec(cmd , { cwd: info.dir }, @onBuildFinished.bind(@, info))
 
   make: (srcPath) ->
-    console.log 'make()'
-    # TODO:
+    # get config
+    info = parse(srcPath)
+    info.useMake = true;
+    mk = atom.config.get('gcc-make-run.make')
+
+    # make
+    cmd = "\"#{mk}\" -f \"#{info.base}\""
+    atom.notifications.addInfo('Start Building...')
+    exec(cmd, { cwd: info.dir }, @onBuildFinished.bind(@, info))
+
+  onBuildFinished: (info, error, stdout, stderr) ->
+    # notifications about compilation status
+    atom.notifications[if error then 'addError' else 'addWarning'](stderr.replace(/\n/g, '<br>'), { dismissable: true }) if stderr
+    atom.notifications.addInfo(stdout.replace(/\n/g, '<br>')) if stdout
+
+    # continue only if no error
+    return if error
+    atom.notifications.addSuccess('Build Success')
+    @run(info)
 
   run: (info) ->
-    console.log 'run()'
-    # TODO:
+    # get config
+    mk = atom.config.get('gcc-make-run.make')
+    args = atom.config.get('gcc-make-run.args')
+
+    # build the run cmd
+    if info.useMake
+      # TODO: use make run
+      console.log 'make run'
+    else
+      info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{args} && pause || pause\""
+
+      # run the cmd
+      console.log info.cmd
+      exec(info.cmd, { cwd: info.dir, env: info.env }, @onRunFinished.bind(@))
+
+  onRunFinished: (error, stdout, stderr) ->
+    # debug use
+    if error
+      console.log 'error:'
+      console.log error
+    if stdout
+      console.log 'stdout:'
+      console.log stdout
+    if stderr
+      console.log 'stderr:'
+      console.log stderr
