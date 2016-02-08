@@ -24,15 +24,36 @@ I am a window user and just switched to Atom from Notepad++. Previously I wrote 
 
 
 ## Setup
+I have tested in the following three platforms:
 
 ### Windows
-For windows users, I recommend installing the [**TDM-GCC**](http://tdm-gcc.tdragon.net/) (*which I am using*), then go to the setting page of this package and change the make utility to `mingw32-make`, after that everything should work.
+For Windows users, I recommend installing the [**TDM-GCC**](http://tdm-gcc.tdragon.net/) (*which I am using*), then go to the setting page of this package and change the make utility to `mingw32-make`, after that everything should work. If you have installed other gcc-compilers, just make sure their command names are in you `PATH` environment variable
 
-### Linux/Ubuntu
-For Linux/Ubuntu users, `gcc` && `g++` && `make` should have already been installed, just go ahead with default settings.
+### Ubuntu
+For Ubuntu users, `gcc` and `make` should have already been installed, though you may need to install `g++` in addition.
 
 ### Mac
-For Mac users, you are not required to install Xcode but at least install the **Xcode Command Line Tools**. [This](http://railsapps.github.io/xcode-command-line-tools.html) site has a more detailed walkthrough.
+For Mac users, Xcode is not a prerequisite but at you need to at least install the **Xcode Command Line Tools**. [This](http://railsapps.github.io/xcode-command-line-tools.html) site has a more detailed walkthrough.
+
+
+
+## Usage
+
+### Settings Page
+![Settings Page](./images/settings.gif)
+* Edit compiler command name or path
+* Edit compiler flags and run arguments
+* Toggle unconditional build
+
+### Run Options
+![Run Options](./images/options.gif)
+* Quick access to edit flags and arguments
+* Can use `[shift-]tab` to change input focus and `enter` to trigger the `run` button
+* Can trigger one-time unconditional build here
+
+### Context Menu
+![Context Menu](./images/context-menu.gif)
+* Trigger Make-Run on Makefile from tree view
 
 
 
@@ -42,14 +63,14 @@ I am new in CoffeeScript and know little about the Model-View-Controller design,
   \+ A simple but useful package to compile-run C/C++ files  
   \- Cannot customize run arguments  
   \- On windows the cmd console just flash then close after the C/C++ program ends  
-  \! The closest that I want, thus mine is a remake with enhancements  
+  \! The closest that I want, thus mine is a **remake with enhancements**  
 
 - [rgbkrk/atom-script](https://atom.io/packages/script)  
   \+ Support many languages  
   \+ Customizable compile and run flags  
   \- Does not support C/C++ on Windows...  
   \- Does not support interactive running  
-  \! The option view is extracted from this package  
+  \! The option view is **modified from this package**  
 
 - [ksxatompackages/cmd-exec](https://atom.io/packages/command-executor)  
   \+ Can register commands to do many things  

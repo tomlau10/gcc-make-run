@@ -57,6 +57,7 @@ class RunOptionsView extends View
       'core:close': => @toggleRunOptions('hide')
       'gcc-make-run:run-options': => @toggleRunOptions()
     atom.workspace.addTopPanel(item: this)
+    @saving = false
     atom.config.onDidChange(=> @restoreOptions())
     @restoreOptions()
     @toggleRunOptions 'hide'
@@ -77,12 +78,15 @@ class RunOptionsView extends View
         @cflags.focus() if @runOptionsView.is(':visible')
 
   restoreOptions: ->
+    return if @saving
     cfgs = ['cflags', 'ldlibs', 'args']
     @[cfg].val(atom.config.get("gcc-make-run.#{cfg}")) for cfg in cfgs
 
   saveOptions: ->
+    @saving = true
     cfgs = ['cflags', 'ldlibs', 'args']
     atom.config.set("gcc-make-run.#{cfg}", @[cfg].val()) for cfg in cfgs
+    @saving = false
 
   run: ->
     @saveOptions()
