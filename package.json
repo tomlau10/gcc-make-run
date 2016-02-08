@@ -11,15 +11,6 @@
     "make",
     "run"
   ],
-  "activationCommands": {
-    "atom-workspace": [
-      "gcc-make-run:compile-run",
-      "gcc-make-run:run-options"
-    ],
-    ".tree-view .file > .name": [
-      "gcc-make-run:make-run"
-    ]
-  },
   "repository": "https://github.com/tomlau10/gcc-make-run",
   "license": "MIT",
   "engines": {
