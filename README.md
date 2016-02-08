@@ -54,6 +54,15 @@ For Mac users, Xcode is not a prerequisite but at you need to at least install t
 ### Context Menu
 ![Context Menu](https://raw.githubusercontent.com/tomlau10/gcc-make-run/master/images/context-menu.gif)
 * Trigger Make-Run on Makefile from tree view
+* To execute a Makefile, a `run` target need to be specified.  
+  Just as in the above .gif  
+  **Note**: Arguments in run options will be passed as environment variable `ARGS` to the Makefile, but compiler flags and link libraries will not.  
+  ```
+  ...
+  run:
+    testing $(ARGS)
+  ...
+  ```
 
 
 

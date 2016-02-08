@@ -7,6 +7,6 @@
   'ctrl-f6': 'gcc-make-run:run-options'
 
 # darwin
-'.platform-darwin atom-text-editor':
+'.platform-darwin atom-workspace':
   'f6': 'gcc-make-run:compile-run'
   'cmd-f6': 'gcc-make-run:run-options'
