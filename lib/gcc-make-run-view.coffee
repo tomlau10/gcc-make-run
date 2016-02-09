@@ -5,15 +5,15 @@
 ###
 
 {CompositeDisposable} = require 'atom'
-{View} = require 'atom-space-pen-views'
+{$, View} = require 'atom-space-pen-views'
 
 module.exports =
 class RunOptionsView extends View
 
   @content: ->
-    @div =>
-      @div class: 'overlay from-top panel run-options-view', outlet: 'runOptionsView', =>
-        @div class: 'panel-heading', 'Configure Compile-Run Options'
+    @div class: 'run-options-view', =>
+      @div class: 'panel-heading', 'Configure Compile-Run Options'
+      @div class: 'panel-body', =>
         @table =>
           @tr =>
             @td => @label 'Compiler Flags:'
@@ -39,73 +39,70 @@ class RunOptionsView extends View
                 type: 'text'
                 class: 'editor mini native-key-bindings'
                 outlet: 'args'
-        @div class: 'block buttons', =>
-          css = 'btn inline-block-tight'
-          @button class: "btn #{css} run", outlet: 'buttonRun', click: 'run', keydown: 'traverseButtonFocus', =>
-            @span class: 'icon icon-triangle-right', 'Run'
-          @button class: "btn #{css} rebuild", outlet: 'buttonReBuild', click: 'rebuild', keydown: 'traverseButtonFocus', =>
-            @span class: 'icon icon-sync', 'Re-Build'
-          @button class: "btn #{css} save", outlet: 'buttonSave', click: 'save', keydown: 'traverseButtonFocus', =>
+        @div class: 'btn-group', =>
+          @button class: 'btn btn-primary', click: 'run', keydown: 'traverseButtonFocus', outlet: 'buttonRun', =>
+            @span class: 'icon icon-playback-play', 'Run'
+          @button class: 'btn', click: 'rebuild', keydown: 'traverseButtonFocus', =>
+            @span class: 'icon icon-sync', 'Rebuild'
+          @button class: 'btn', click: 'save', keydown: 'traverseButtonFocus', =>
             @span class: 'icon icon-clippy', 'Save'
-          @button class: "btn #{css} cancel", outlet: 'buttonCancel', click: 'cancel', keydown: 'traverseButtonFocus', =>
+          @button class: 'btn', click: 'cancel', keydown: 'traverseButtonFocus', outlet: 'buttonCancel', =>
             @span class: 'icon icon-x', 'Cancel'
 
-  initialize: (@controller) ->
+  initialize: (@main) ->
+    # observe shortcut
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.commands.add 'atom-workspace',
-      'core:cancel': => @toggleRunOptions('hide')
-      'core:close': => @toggleRunOptions('hide')
-      'gcc-make-run:run-options': => @toggleRunOptions()
-    atom.workspace.addTopPanel(item: this)
-    @saving = false
-    atom.config.onDidChange(=> @restoreOptions())
-    @restoreOptions()
-    @toggleRunOptions 'hide'
+      'core:cancel': => @hideRunOptions()
+      'core:close': => @hideRunOptions()
+      'gcc-make-run:compile-run': => @hideRunOptions(true)
+      'gcc-make-run:run-options': => @showRunOptions()
+
+    # add modal panel
+    @runOptionsPanel = atom.workspace.addModalPanel(item: @, visible: false)
+
+    # hide panel when click outside
+    $('atom-workspace').click => @hideRunOptions()
+    @.click (e) -> e.stopPropagation()
 
   destroy: ->
+    @runOptionsPanel?.destroy()
     @subscriptions?.dispose()
 
-  toggleRunOptions: (command) ->
-    switch command
-      when 'show'
-        @runOptionsView.show()
-        @cflags.focus()
-      when 'hide'
-        @runOptionsView.hide()
-        @restoreOptions()
-      else
-        @runOptionsView.toggle()
-        @cflags.focus() if @runOptionsView.is(':visible')
+  showRunOptions: ->
+    return if @runOptionsPanel.isVisible()
+    @restoreOptions()
+    @runOptionsPanel.show()
+    @cflags.focus()
+
+  hideRunOptions: (shouldSave) ->
+    return unless @runOptionsPanel.isVisible()
+    @runOptionsPanel.hide()
+    @saveOptions() if shouldSave
 
   restoreOptions: ->
-    return if @saving
     cfgs = ['cflags', 'ldlibs', 'args']
     @[cfg].val(atom.config.get("gcc-make-run.#{cfg}")) for cfg in cfgs
 
   saveOptions: ->
-    @saving = true
     cfgs = ['cflags', 'ldlibs', 'args']
     atom.config.set("gcc-make-run.#{cfg}", @[cfg].val()) for cfg in cfgs
-    @saving = false
 
   run: ->
-    @saveOptions()
-    @toggleRunOptions('hide')
+    @hideRunOptions(true)
     atom.commands.dispatch @workspaceView(), 'gcc-make-run:compile-run'
 
   rebuild: ->
-    @saveOptions()
-    @toggleRunOptions('hide')
-    @controller.onceRebuild = true
+    @hideRunOptions(true)
+    @main.oneTimeBuild = true
     atom.commands.dispatch @workspaceView(), 'gcc-make-run:compile-run'
 
   save: ->
-    @saveOptions()
-    @toggleRunOptions('hide')
+    @hideRunOptions(true)
     atom.notifications.addSuccess('Run Options Saved')
 
   cancel: ->
-    @toggleRunOptions('hide')
+    @hideRunOptions()
 
   traverseInputFocus: (e) ->
     switch e.keyCode

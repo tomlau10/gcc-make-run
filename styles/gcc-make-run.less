@@ -11,6 +11,11 @@
 @import "ui-variables";
 
 .run-options-view {
+  .panel-heading {
+    text-align: center;
+    font-size: 1.25rem;
+  }
+
   table {
     width: 100%;
     margin-top: 5px;
@@ -22,31 +27,30 @@
       input {
         width: 100%;
         color: @text-color;
-        height: @component-line-height;
-        line-height: @component-line-height;
-        background-color: @button-background-color;
+        background-color: @input-background-color;
         border-radius: @component-border-radius;
         border: 1px solid @input-border-color;
-        padding-left: 0.8rem;
+        padding: 0.5rem;
       }
       input:focus {
         color: @text-color-highlight;
-        background-color: @button-background-color-hover;
+        border-color: @button-background-color-selected;
       }
     }
 
     td:first-child {
-      width: 15rem;
+      width: 25%;
       text-align: right;
     }
   }
 
-  .buttons {
-    padding: 5px;
+  .btn-group {
+    padding: 0.5rem;
     display: flex;
 
     * {
       flex: 1;
+      padding: 0.2rem;
     }
   }
 }

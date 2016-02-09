@@ -56,7 +56,7 @@ module.exports = GccMakeRun =
       order: 7
       description: 'Arguments for executing, eg: 1 "2 3"'
   gccMakeRunView: null
-  onceRebuild: false
+  oneTimeBuild: false
 
   ###
   # package setup
@@ -200,8 +200,8 @@ module.exports = GccMakeRun =
       return false
 
   shouldUncondBuild: ->
-    ret = @onceRebuild || atom.config.get('gcc-make-run.uncondBuild')
-    @onceRebuild = false
+    ret = @oneTimeBuild || atom.config.get('gcc-make-run.uncondBuild')
+    @oneTimeBuild = false
     return ret
 
   buildRunCmd: (info) ->
