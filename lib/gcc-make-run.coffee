@@ -18,43 +18,49 @@ module.exports = GccMakeRun =
       type: 'string'
       default: 'gcc'
       order: 1
-      description: 'Compiler for C, in full path or command name (make sure it is in your $PATH)'
+      description: 'Compiler for `C`, in full path or command name (make sure it is in your `$PATH`)'
     'C++':
       title: 'g++ Compiler'
       type: 'string'
       default: 'g++'
       order: 2
-      description: 'Compiler for C++, in full path or command name (make sure it is in your $PATH)'
+      description: 'Compiler for `C++`, in full path or command name (make sure it is in your `$PATH`)'
     'make':
       title: 'make Utility'
       type: 'string'
       default: 'make'
       order: 3
-      description: 'The make utility used for compilation, in full path or command name (make sure it is in your $PATH)'
+      description: 'The `make` utility used for compilation, in full path or command name (make sure it is in your `$PATH`)'
     'uncondBuild':
       title: 'Unconditional Build'
       type: 'boolean'
       default: false
       order: 4
-      description: 'Compile even if executable is up to date'
+      description: 'Will not check if executable is up to date'
     'cflags':
       title: 'Compiler Flags'
       type: 'string'
       default: ''
       order: 5
-      description: 'Flags for compiler, eg: -Wall'
+      description: 'Flags for compiler, eg: `-Wall`'
     'ldlibs':
       title: 'Link Libraries'
       type: 'string'
       default: ''
       order: 6
-      description: 'Libraries for linking, eg: -lm'
+      description: 'Libraries for linking, eg: `-lm`'
     'args':
       title: 'Run Arguments'
       type: 'string'
       default: ''
       order: 7
-      description: 'Arguments for executing, eg: 1 "2 3"'
+      description: 'Arguments for executing, eg: `1 "2 3" "\\\"4 5 6\\\""`'
+    'debug':
+      title: 'Debug Mode'
+      type: 'boolean'
+      default: false
+      order: 8
+      description: 'Turn on this flag to log the executed command and output in console'
   gccMakeRunView: null
   oneTimeBuild: false
 
@@ -144,15 +150,13 @@ module.exports = GccMakeRun =
     return unless @buildRunCmd(info)
 
     # run the cmd
-    console.log info.cmd
+    console.log info.cmd if atom.config.get('gcc-make-run.debug')
     exec(info.cmd, { cwd: info.dir, env: info.env }, @onRunFinished.bind(@))
 
   onRunFinished: (error, stdout, stderr) ->
-    # debug use
-    if error
-      atom.notifications.addError('gcc-make-run: Run Command Failed', { detail: stderr, dismissable: true })
-    if stdout
-      console.log stdout
+    # command error
+    atom.notifications.addError('gcc-make-run: Run Command Failed', { detail: stderr, dismissable: true }) if error
+    console.log stdout if stdout && atom.config.get('gcc-make-run.debug')
 
   ###
   # helper functions

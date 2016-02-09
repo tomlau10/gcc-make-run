@@ -18,8 +18,8 @@ I am a window user and just switched to Atom from Notepad++. Previously I wrote 
 * Customize compilers used
 * Customize compiler flags
 * Customize run options
-* Shortcut to compile-run
-* Shortcut to access run options panel
+* Shortcut to compile-run [ default: `f6` ]
+* Shortcut to access run options panel [ default: `ctrl-f6`/`cmd-f6` ]
 
 
 
@@ -40,23 +40,22 @@ For Mac users, Xcode is not a prerequisite but at you need to at least install t
 ## Usage
 
 ### Settings Page
-![Settings Page](https://raw.githubusercontent.com/tomlau10/gcc-make-run/master/images/settings.gif)
+![Settings Page](./images/settings.gif)
 * Edit compiler command name or path
 * Edit compiler flags and run arguments
 * Toggle unconditional build
 
 ### Run Options
-![Run Options](https://raw.githubusercontent.com/tomlau10/gcc-make-run/master/images/options.gif)
+![Run Options](./images/options.gif)
 * Quick access to edit flags and arguments
 * Can use `[shift-]tab` to change input focus and `enter` to trigger the `run` button
 * Can trigger one-time unconditional build here
 
 ### Context Menu
-![Context Menu](https://raw.githubusercontent.com/tomlau10/gcc-make-run/master/images/context-menu.gif)
+![Context Menu](./images/menu.gif)
 * Trigger Make-Run on Makefile from tree view
-* To execute a Makefile, a `run` target need to be specified.  
-  Just as in the above .gif  
-  **Note**: Arguments in run options will be passed as environment variable `ARGS` to the Makefile, but compiler flags and link libraries will not.  
+* To execute a Makefile, a `run` target need to be specified, just as in the above `.gif`  
+  **Note**: Arguments in run options will be passed as environment variable `ARGS` to the Makefile, but compiler flags and link libraries will not. Below is an example `run` target:  
   ```
   ...
   run:
