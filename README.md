@@ -40,19 +40,19 @@ For Mac users, Xcode is not a prerequisite but at you need to at least install t
 ## Usage
 
 ### Settings Page
-![Settings Page](./images/settings.gif)
+![Settings Page](https://raw.githubusercontent.com/tomlau10/gcc-make-run/master/images/settings.gif)
 * Edit compiler command name or path
 * Edit compiler flags and run arguments
 * Toggle unconditional build
 
 ### Run Options
-![Run Options](./images/options.gif)
+![Run Options](https://raw.githubusercontent.com/tomlau10/gcc-make-run/master/images/options.gif)
 * Quick access to edit flags and arguments
 * Can use `[shift-]tab` to change input focus and `enter` to trigger the `run` button
 * Can trigger one-time unconditional build here
 
 ### Context Menu
-![Context Menu](./images/menu.gif)
+![Context Menu](https://raw.githubusercontent.com/tomlau10/gcc-make-run/master/images/menu.gif)
 * Trigger Make-Run on Makefile from tree view
 * To execute a Makefile, a `run` target need to be specified, just as in the above `.gif`  
   **Note**: Arguments in run options will be passed as environment variable `ARGS` to the Makefile, but compiler flags and link libraries will not. Below is an example `run` target:  
