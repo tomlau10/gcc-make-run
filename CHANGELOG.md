@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.2
+* Fix a rendering problem in readme
+
 ## 0.2.1
 * Fix images links in readme
 
