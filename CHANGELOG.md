@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+* Fix images links in readme
+
 ## 0.2.0
 * Improve option panel UI and CSS
 * Update readme and images
