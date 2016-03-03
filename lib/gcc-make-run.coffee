@@ -96,7 +96,7 @@ module.exports = GccMakeRun =
     # get grammar
     grammar = editor.getGrammar().name
     switch grammar
-      when 'C', 'C++' then
+      when 'C', 'C++', 'C++14' then
         # do nothing
       when 'Makefile'
         @make(srcPath)
