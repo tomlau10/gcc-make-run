@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.3
+## 0.2.4
 * Fix detection for C++14 grammar [[\#1](https://github.com/tomlau10/gcc-make-run/issues/1)@Adobe-Android]
 
 ## 0.2.2
