@@ -107,7 +107,7 @@ module.exports = GccMakeRun =
 
     # get config
     info = parse(editor.getPath())
-    info.useMake = false;
+    info.useMake = false
     info.exe = info.name + if process.platform == 'win32' then '.exe' else ''
     compiler = atom.config.get("gcc-make-run.#{grammar}")
     cflags = atom.config.get('gcc-make-run.cflags')
@@ -115,7 +115,7 @@ module.exports = GccMakeRun =
 
     # check if update needed before compile
     if !@shouldUncondBuild() && @isExeUpToDate(info)
-        @run(info)
+      @run(info)
     else
       cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.name}\" #{ldlibs}"
       atom.notifications.addInfo('gcc-make-run: Running Command...', { detail: cmd })
@@ -124,7 +124,7 @@ module.exports = GccMakeRun =
   make: (srcPath) ->
     # get config
     info = parse(srcPath)
-    info.useMake = true;
+    info.useMake = true
     mk = atom.config.get('gcc-make-run.make')
     mkFlags = if @shouldUncondBuild() then '-B' else ''
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.3
+* Fix detection for C++14 grammar
+
 ## 0.2.2
 * Fix a rendering problem in readme
 
