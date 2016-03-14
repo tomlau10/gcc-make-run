@@ -6,7 +6,7 @@ Compile-run C/C++ source code and execute Makefile in Atom.
 
 ## Preface
 
-I am a window user and just switched to Atom from Notepad++. Previously I wrote a script in NppExec to compile-run my C/C++ programs and execute Makefiles with customizable compile flags and run options. Atom has numerous community packages and I have tried some. They are really great in certain extent but still cannot fully satisfy my need. Therefore I decided to reference their packages and make my own.
+I am a Windows user and just switched to Atom from Notepad++. Previously I wrote a script in NppExec to compile-run my C/C++ programs and execute Makefiles with customizable compile flags and run options. Atom has numerous community packages and I have tried some. They are really great in certain extent but still cannot fully satisfy my need. Therefore I decided to reference their packages and make my own.
 
 
 
