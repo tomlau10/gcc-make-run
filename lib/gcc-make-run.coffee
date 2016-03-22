@@ -212,28 +212,23 @@ module.exports = GccMakeRun =
     mk = atom.config.get('gcc-make-run.make')
     info.env = _extend({ ARGS: atom.config.get('gcc-make-run.args') }, process.env)
 
-
     if info.useMake
       switch process.platform
-        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run && pause || pause\""
-        when 'linux' then info.cmd = "xterm -hold -T \"#{info.exe}\" -e \"#{mk}\" -sf \"#{info.base}\" run"
-        when 'darwin'
-          info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' +
-            @esc("cd \"#{info.dir}\"; \"#{mk}\" ARGS=\"#{@esc(info.env.ARGS)}\" -sf \"#{info.base}\" run; exit") + '"\''
+        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run & pause\""
+        when 'linux' then info.cmd = "xterm -T \"#{info.exe}\" -e \"" + @escdq("\"#{mk}\" -sf \"#{info.base}\" run") + "; read -n1 -p 'Press any key to continue...'\""
+        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("cd \"#{info.dir}\"; \"#{mk}\" ARGS=\"#{@escdq(info.env.ARGS)}\" -sf \"#{info.base}\" run; exit") + '"\''
     else
       # normal run
       switch process.platform
-        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{info.env.ARGS} && pause || pause\""
-        when 'linux' then info.cmd = "xterm -hold -T \"#{info.exe}\" -e \"./#{info.exe}\" #{info.env.ARGS}"
-        when 'darwin'
-          info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' +
-            @esc("cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; exit") + '"\''
+        when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{info.env.ARGS} & pause\""
+        when 'linux' then info.cmd = "xterm -T \"#{info.exe}\" -e \"" + @escdq("\"./#{info.exe}\" #{info.env.ARGS}") + "; read -n1 -p 'Press any key to continue...'\""
+        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; exit") + '"\''
 
     # check if cmd is built
     return true if info.cmd?
     atom.notifications.addError('gcc-make-run: Cannot Execute Output', { detail: 'Execution after compiling is not supported on your OS' })
     return false
 
-  esc: (s) ->
+  escdq: (s) ->
     # escape double quote
     s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')

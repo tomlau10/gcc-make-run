@@ -33,7 +33,7 @@ For Windows users, I recommend installing the [**TDM-GCC**](http://tdm-gcc.tdrag
 For Ubuntu users, `gcc` and `make` should have already been installed, though you may need to install `g++` in addition.
 
 ### Mac
-For Mac users, Xcode is not a prerequisite but at you need to at least install the **Xcode Command Line Tools**. [This](http://railsapps.github.io/xcode-command-line-tools.html) site has a more detailed walkthrough.
+For Mac users, Xcode is not a prerequisite but you need to at least install the **Xcode Command Line Tools**. [This](http://railsapps.github.io/xcode-command-line-tools.html) site has a more detailed walkthrough.
 
 
 

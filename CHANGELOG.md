@@ -1,16 +1,13 @@
 # Changelog
 
-## 0.2.5
-* Fix typo in readme
+## 0.2.6
+* Add `Press Enter to continue` after running in Linux platform [[\#3](https://github.com/tomlau10/gcc-make-run/issues/3)@nilosweden]
 
-## 0.2.4
-* Fix detection for `C++14` grammar [[\#1](https://github.com/tomlau10/gcc-make-run/issues/1)@Adobe-Android]
-
-## 0.2.2
-* Fix a rendering problem in readme
-
-## 0.2.1
+## 0.2.1 - 0.2.5
 * Fix images links in readme
+* Fix a rendering problem in readme
+* Fix detection for `C++14` grammar [[\#1](https://github.com/tomlau10/gcc-make-run/issues/1)@Adobe-Android]
+* Fix typo in readme
 
 ## 0.2.0
 * Improve option panel UI and CSS
