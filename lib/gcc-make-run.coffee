@@ -55,11 +55,17 @@ module.exports = GccMakeRun =
       default: ''
       order: 7
       description: 'Arguments for executing, eg: `1 "2 3" "\\\"4 5 6\\\""`'
+    'ext':
+      title: 'Output Extension'
+      type: 'string'
+      default: ''
+      order: 8
+      description: 'The output extension, eg: `out`, in Windows compilers will use `exe` by default'
     'debug':
       title: 'Debug Mode'
       type: 'boolean'
       default: false
-      order: 8
+      order: 9
       description: 'Turn on this flag to log the executed command and output in console'
   gccMakeRunView: null
   oneTimeBuild: false
@@ -107,7 +113,9 @@ module.exports = GccMakeRun =
     # get config
     info = parse(editor.getPath())
     info.useMake = false
-    info.exe = info.name + if process.platform == 'win32' then '.exe' else ''
+    info.exe = info.name
+    ext = atom.config.get('gcc-make-run.ext')
+    if ext then info.exe += ".#{ext}" else if process.platform == 'win32' then info.exe += '.exe'
     compiler = atom.config.get("gcc-make-run.#{grammar}")
     cflags = atom.config.get('gcc-make-run.cflags')
     ldlibs = atom.config.get('gcc-make-run.ldlibs')
@@ -116,7 +124,7 @@ module.exports = GccMakeRun =
     if !@shouldUncondBuild() && @isExeUpToDate(info)
       @run(info)
     else
-      cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.name}\" #{ldlibs}"
+      cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.exe}\" #{ldlibs}"
       atom.notifications.addInfo('gcc-make-run: Running Command...', { detail: cmd })
       exec(cmd , { cwd: info.dir }, @onBuildFinished.bind(@, info))
 

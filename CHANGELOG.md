@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.7
+* Add output extension setting [[\#5](https://github.com/tomlau10/gcc-make-run/issues/5)@adiultra]
+* Fix input cursor going to background when clicking the option view
+
 ## 0.2.6
 * Add `Press Enter to continue` after running in Linux platform [[\#3](https://github.com/tomlau10/gcc-make-run/issues/3)@nilosweden]
 

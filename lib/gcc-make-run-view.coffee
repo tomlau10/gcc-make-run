@@ -17,28 +17,13 @@ class RunOptionsView extends View
         @table =>
           @tr =>
             @td => @label 'Compiler Flags:'
-            @td =>
-              @input
-                keydown: 'traverseInputFocus'
-                type: 'text'
-                class: 'editor mini native-key-bindings'
-                outlet: 'cflags'
+            @td => @tag 'atom-text-editor', class: 'editor mini', mini: '', keydown: 'traverseInputFocus', outlet: 'cflags'
           @tr =>
             @td => @label 'Link Libraries:'
-            @td =>
-              @input
-                keydown: 'traverseInputFocus'
-                type: 'text'
-                class: 'editor mini native-key-bindings'
-                outlet: 'ldlibs'
+            @td => @tag 'atom-text-editor', class: 'editor mini', mini: '', keydown: 'traverseInputFocus', outlet: 'ldlibs'
           @tr =>
             @td => @label 'Run Arguments:'
-            @td =>
-              @input
-                keydown: 'traverseInputFocus'
-                type: 'text'
-                class: 'editor mini native-key-bindings'
-                outlet: 'args'
+            @td => @tag 'atom-text-editor', class: 'editor mini', mini: '', keydown: 'traverseInputFocus', outlet: 'args'
         @div class: 'btn-group', =>
           @button class: 'btn btn-primary', click: 'run', keydown: 'traverseButtonFocus', outlet: 'buttonRun', =>
             @span class: 'icon icon-playback-play', 'Run'
@@ -63,6 +48,9 @@ class RunOptionsView extends View
 
     # hide panel when click outside
     $('atom-workspace').click => @hideRunOptions()
+    @.mousedown (e) ->
+      e.target.focus() if e.target.classList.contains('editor')
+      e.preventDefault()
     @.click (e) -> e.stopPropagation()
 
   destroy: ->
@@ -108,10 +96,12 @@ class RunOptionsView extends View
     switch e.keyCode
       # press tab key should change focus
       when 9
+        # stop default propagation
+        e.preventDefault()
         # find next/prev input box to focus
         row = @find(e.target).parents('tr:first')[if e.shiftKey then 'prevAll' else 'nextAll']('tr:first')
         if row.length
-          row.find('input').focus()
+          row.find('atom-text-editor').focus()
         # focus run or close button if no input box can be found
         else
           if e.shiftKey then @buttonCancel.focus() else @buttonRun.focus()
