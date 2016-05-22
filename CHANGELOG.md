@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.8
+* Fix run options not working after previous update [[\#6](https://github.com/tomlau10/gcc-make-run/issues/6)@Weslysilva]
+
 ## 0.2.7
 * Add output extension setting [[\#5](https://github.com/tomlau10/gcc-make-run/issues/5)@adiultra]
 * Fix input cursor going to background when clicking the option view
