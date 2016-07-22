@@ -230,7 +230,7 @@ module.exports = GccMakeRun =
       switch process.platform
         when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{info.env.ARGS} & pause\""
         when 'linux' then info.cmd = "xterm -T \"#{info.exe}\" -e \"" + @escdq("\"./#{info.exe}\" #{info.env.ARGS}") + "; read -n1 -p 'Press any key to continue...'\""
-        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; echo \"\nPress Enter to continue...\" && read && /Applications/Atom.app/Contents/MacOS/Atom \"#{info.exe}.cpp\" && exit") + '"\''
+        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; echo \"\nPress Enter to continue...\" && read && /Applications/Atom.app/Contents/MacOS/Atom \"#{info.base}\" && exit") + '"\''
 
     # check if cmd is built
     return true if info.cmd?
