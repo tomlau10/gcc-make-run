@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.9
+* Add `Press any key to continue` after running in MacOS platform [[\#9](https://github.com/tomlau10/gcc-make-run/pull/9)@crazymousethief]
+
 ## 0.2.8
 * Fix run options not working after previous update [[\#6](https://github.com/tomlau10/gcc-make-run/issues/6)@Weslysilva]
 
