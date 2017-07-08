@@ -49,7 +49,12 @@ class RunOptionsView extends View
     # hide panel when click outside
     $('atom-workspace').click => @hideRunOptions()
     @.mousedown (e) ->
-      e.target.focus() if e.target.classList.contains('editor')
+      target = e.target
+      while target != @
+        if target.classList.contains('editor')
+          target.focus()
+          break
+        target = target.parentNode
       e.preventDefault()
     @.click (e) -> e.stopPropagation()
 
