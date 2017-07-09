@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.10
+* Fix extra windows due to not handling deactivate correctly [[\#12](https://github.com/tomlau10/gcc-make-run/issues/12)@Dreded]
+* Fix cannot change focus in options view
+* Add `terminal start command` config for Linux platform [[\#22](https://github.com/tomlau10/gcc-make-run/pull/22)@aquaraider11]
+
 ## 0.2.9
 * Add `Press any key to continue` after running in MacOS platform [[\#9](https://github.com/tomlau10/gcc-make-run/pull/9)@crazymousethief]
 
