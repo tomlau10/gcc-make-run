@@ -75,10 +75,14 @@ module.exports = GccMakeRun =
   ###
   activate: (state) ->
     @gccMakeRunView = new GccMakeRunView(@)
-    atom.commands.add 'atom-workspace', 'gcc-make-run:compile-run': => @compile()
-    atom.commands.add '.tree-view .file > .name', 'gcc-make-run:make-run': (e) => @make(e.target.getAttribute('data-path'))
+    @subscriptions = new CompositeDisposable()
+    @subscriptions.add(
+      atom.commands.add 'atom-workspace', 'gcc-make-run:compile-run': => @compile(),
+      atom.commands.add '.tree-view .file > .name', 'gcc-make-run:make-run': (e) => @make(e.target.getAttribute('data-path'))
+    )
 
   deactivate: ->
+    @subscriptions.dispose()
     @gccMakeRunView.cancel()
 
   serialize: ->
