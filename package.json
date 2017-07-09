@@ -1,7 +1,7 @@
 {
   "name": "gcc-make-run",
   "main": "./lib/gcc-make-run",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Compile-run C/C++ source code and execute Makefile in Atom.",
   "keywords": [
     "gcc",
