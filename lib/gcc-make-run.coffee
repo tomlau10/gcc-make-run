@@ -61,12 +61,19 @@ module.exports = GccMakeRun =
       default: ''
       order: 8
       description: 'The output extension, eg: `out`, in Windows compilers will use `exe` by default'
+    'terminal':
+      title: 'Terminal Start Command (only Linux platform)'
+      type: 'string'
+      default: 'xterm -T #{title} -e'
+      order: 9
+      description: 'Customize the terminal start command, eg: `gnome-terminal -t #{title} -x bash -c`'
     'debug':
       title: 'Debug Mode'
       type: 'boolean'
       default: false
-      order: 9
+      order: 10
       description: 'Turn on this flag to log the executed command and output in console'
+
   gccMakeRunView: null
   oneTimeBuild: false
 
@@ -224,16 +231,19 @@ module.exports = GccMakeRun =
     mk = atom.config.get('gcc-make-run.make')
     info.env = _extend({ ARGS: atom.config.get('gcc-make-run.args') }, process.env)
 
+    # for linux platform, get terminal and replace the title
+    terminal = atom.config.get('gcc-make-run.terminal').replace('#{title}', "\"#{info.exe}\"") if process.platform == 'linux'
+
     if info.useMake
       switch process.platform
         when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run & pause\""
-        when 'linux' then info.cmd = "xterm -T \"#{info.exe}\" -e \"" + @escdq("\"#{mk}\" -sf \"#{info.base}\" run") + "; read -n1 -p 'Press any key to continue...'\""
+        when 'linux' then info.cmd = "#{terminal} \"" + @escdq("\"#{mk}\" -sf \"#{info.base}\" run") + "; read -n1 -p 'Press any key to continue...'\""
         when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"#{mk}\" ARGS=\"#{@escdq(info.env.ARGS)}\" -sf \"#{info.base}\" run; " + 'read -n1 -p "Press any key to continue..." && osascript -e "tell application \\"Atom\\" to activate" && osascript -e "do shell script ' + @escdq("\"osascript -e #{@escdq('"tell application \\"Terminal\\" to close windows 0"')} + &> /dev/null &\"") + '"; exit') + '"\''
     else
       # normal run
       switch process.platform
         when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{info.env.ARGS} & pause\""
-        when 'linux' then info.cmd = "xterm -T \"#{info.exe}\" -e \"" + @escdq("\"./#{info.exe}\" #{info.env.ARGS}") + "; read -n1 -p 'Press any key to continue...'\""
+        when 'linux' then info.cmd = "#{terminal} \"" + @escdq("\"./#{info.exe}\" #{info.env.ARGS}") + "; read -n1 -p 'Press any key to continue...'\""
         when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; " + 'read -n1 -p "Press any key to continue..." && osascript -e "tell application \\"Atom\\" to activate" && osascript -e "do shell script ' + @escdq("\"osascript -e #{@escdq('"tell application \\"Terminal\\" to close windows 0"')} + &> /dev/null &\"") + '"; exit') + '"\''
 
     # check if cmd is built
