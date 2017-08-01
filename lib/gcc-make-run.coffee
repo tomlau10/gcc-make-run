@@ -64,9 +64,9 @@ module.exports = GccMakeRun =
     'terminal':
       title: 'Terminal Start Command (only Linux platform)'
       type: 'string'
-      default: 'xterm -T #{title} -e'
+      default: 'xterm -T $title -e'
       order: 9
-      description: 'Customize the terminal start command, eg: `gnome-terminal -t #{title} -x bash -c`'
+      description: 'Customize the terminal start command, eg: `gnome-terminal -t $title -x bash -c`'
     'debug':
       title: 'Debug Mode'
       type: 'boolean'
@@ -232,7 +232,7 @@ module.exports = GccMakeRun =
     info.env = _extend({ ARGS: atom.config.get('gcc-make-run.args') }, process.env)
 
     # for linux platform, get terminal and replace the title
-    terminal = atom.config.get('gcc-make-run.terminal').replace('#{title}', "\"#{info.exe}\"") if process.platform == 'linux'
+    terminal = atom.config.get('gcc-make-run.terminal').replace('$title', "\"#{info.exe}\"") if process.platform == 'linux'
 
     if info.useMake
       switch process.platform
