@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.11
+* Fix `terminal start command` config `#{title}` causing config.cson error and changed to `$title` [[\#23](https://github.com/tomlau10/gcc-make-run/issues/23)@aquaraider11]
+* If encountered this issue already, needs manually delete the `terminal` key under `gcc-make-run` in `config.cson` (`File` > `Config...`)
+
 ## 0.2.10
 * Fix extra windows due to not handling deactivate correctly [[\#12](https://github.com/tomlau10/gcc-make-run/issues/12)@Dreded]
 * Fix cannot change focus in options view
