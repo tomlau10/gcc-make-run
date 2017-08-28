@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.12
+* Fix not handling `TextBuffer.save()` becoming async in atom 1.19 correctly [[\#19](https://github.com/tomlau10/gcc-make-run/issues/19)@maxbrunsfeld] [[\#28](https://github.com/tomlau10/gcc-make-run/issues/28)@ziadxkabakibi]
+* Fix `setText() of undefined` in run option view  [[\#27](https://github.com/tomlau10/gcc-make-run/issues/29)@kebien6020]
+
 ## 0.2.11
 * Fix `terminal start command` config `#{title}` causing config.cson error and changed to `$title` [[\#23](https://github.com/tomlau10/gcc-make-run/issues/23)@aquaraider11]
 * If encountered this issue already, needs manually delete the `terminal` key under `gcc-make-run` in `config.cson` (`File` > `Config...`)
