@@ -75,11 +75,11 @@ class RunOptionsView extends View
 
   restoreOptions: ->
     cfgs = ['cflags', 'ldlibs', 'args']
-    @[cfg].get(0).model.setText(atom.config.get("gcc-make-run.#{cfg}")) for cfg in cfgs
+    @[cfg].get(0).getModel().setText(atom.config.get("gcc-make-run.#{cfg}")) for cfg in cfgs
 
   saveOptions: ->
     cfgs = ['cflags', 'ldlibs', 'args']
-    atom.config.set("gcc-make-run.#{cfg}", @[cfg].get(0).model.getText()) for cfg in cfgs
+    atom.config.set("gcc-make-run.#{cfg}", @[cfg].get(0).getModel().getText()) for cfg in cfgs
 
   run: ->
     @hideRunOptions(true)
