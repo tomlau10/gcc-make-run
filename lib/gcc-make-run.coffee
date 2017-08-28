@@ -108,36 +108,36 @@ module.exports = GccMakeRun =
     if !srcPath
       atom.notifications.addError('gcc-make-run: File Not Saved', { detail: 'Temporary files must be saved first' })
       return
-    editor.save() if editor.isModified()
+    Promise.resolve(editor.save() if editor.isModified()).then =>
 
-    # get grammar
-    grammar = editor.getGrammar().name
-    switch grammar
-      when 'C', 'C++', 'C++14' then grammar = 'C++' if grammar == 'C++14'
-      when 'Makefile'
-        @make(srcPath)
-        return
+      # get grammar
+      grammar = editor.getGrammar().name
+      switch grammar
+        when 'C', 'C++', 'C++14' then grammar = 'C++' if grammar == 'C++14'
+        when 'Makefile'
+          @make(srcPath)
+          return
+        else
+          atom.notifications.addError('gcc-make-run: Grammar Not Supported', { detail: 'Only C, C++ and Makefile are supported' })
+          return
+
+      # get config
+      info = parse(editor.getPath())
+      info.useMake = false
+      info.exe = info.name
+      ext = atom.config.get('gcc-make-run.ext')
+      if ext then info.exe += ".#{ext}" else if process.platform == 'win32' then info.exe += '.exe'
+      compiler = atom.config.get("gcc-make-run.#{grammar}")
+      cflags = atom.config.get('gcc-make-run.cflags')
+      ldlibs = atom.config.get('gcc-make-run.ldlibs')
+
+      # check if update needed before compile
+      if !@shouldUncondBuild() && @isExeUpToDate(info)
+        @run(info)
       else
-        atom.notifications.addError('gcc-make-run: Grammar Not Supported', { detail: 'Only C, C++ and Makefile are supported' })
-        return
-
-    # get config
-    info = parse(editor.getPath())
-    info.useMake = false
-    info.exe = info.name
-    ext = atom.config.get('gcc-make-run.ext')
-    if ext then info.exe += ".#{ext}" else if process.platform == 'win32' then info.exe += '.exe'
-    compiler = atom.config.get("gcc-make-run.#{grammar}")
-    cflags = atom.config.get('gcc-make-run.cflags')
-    ldlibs = atom.config.get('gcc-make-run.ldlibs')
-
-    # check if update needed before compile
-    if !@shouldUncondBuild() && @isExeUpToDate(info)
-      @run(info)
-    else
-      cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.exe}\" #{ldlibs}"
-      atom.notifications.addInfo('gcc-make-run: Running Command...', { detail: cmd })
-      exec(cmd , { cwd: info.dir }, @onBuildFinished.bind(@, info))
+        cmd = "\"#{compiler}\" #{cflags} \"#{info.base}\" -o \"#{info.exe}\" #{ldlibs}"
+        atom.notifications.addInfo('gcc-make-run: Running Command...', { detail: cmd })
+        exec(cmd , { cwd: info.dir }, @onBuildFinished.bind(@, info))
 
   make: (srcPath) ->
     # get config
