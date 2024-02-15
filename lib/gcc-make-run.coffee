@@ -237,14 +237,14 @@ module.exports = GccMakeRun =
     if info.useMake
       switch process.platform
         when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{mk}\" -sf \"#{info.base}\" run & pause\""
-        when 'linux' then info.cmd = "#{terminal} \"" + @escdq("\"#{mk}\" -sf \"#{info.base}\" run") + "; read -n1 -p 'Press any key to continue...'\""
-        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"#{mk}\" ARGS=\"#{@escdq(info.env.ARGS)}\" -sf \"#{info.base}\" run; " + 'read -n1 -p "Press any key to continue..." && osascript -e "tell application \\"Atom\\" to activate" && osascript -e "do shell script ' + @escdq("\"osascript -e #{@escdq('"tell application \\"Terminal\\" to close windows 0"')} + &> /dev/null &\"") + '"; exit') + '"\''
+        when 'linux' then info.cmd = "#{terminal} \"" + @escdq("\"#{mk}\" -sf \"#{info.base}\" run") + "; read -n 1 -p 'Press any key to continue...'\""
+        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"#{mk}\" ARGS=\"#{@escdq(info.env.ARGS)}\" -sf \"#{info.base}\" run; " + 'read -n 1 -p "Press any key to continue..." && osascript -e "tell application \\"Atom\\" to activate" && osascript -e "do shell script ' + @escdq("\"osascript -e #{@escdq('"tell application \\"Terminal\\" to close windows 0"')} + &> /dev/null &\"") + '"; exit') + '"\''
     else
       # normal run
       switch process.platform
         when 'win32' then info.cmd = "start \"#{info.exe}\" cmd /c \"\"#{info.exe}\" #{info.env.ARGS} & pause\""
-        when 'linux' then info.cmd = "#{terminal} \"" + @escdq("\"./#{info.exe}\" #{info.env.ARGS}") + "; read -n1 -p 'Press any key to continue...'\""
-        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; " + 'read -n1 -p "Press any key to continue..." && osascript -e "tell application \\"Atom\\" to activate" && osascript -e "do shell script ' + @escdq("\"osascript -e #{@escdq('"tell application \\"Terminal\\" to close windows 0"')} + &> /dev/null &\"") + '"; exit') + '"\''
+        when 'linux' then info.cmd = "#{terminal} \"" + @escdq("\"./#{info.exe}\" #{info.env.ARGS}") + "; read -n 1 -p 'Press any key to continue...'\""
+        when 'darwin' then info.cmd = 'osascript -e \'tell application "Terminal" to activate do script "' + @escdq("clear && cd \"#{info.dir}\"; \"./#{info.exe}\" #{info.env.ARGS}; " + 'read -n 1 -p "Press any key to continue..." && osascript -e "tell application \\"Atom\\" to activate" && osascript -e "do shell script ' + @escdq("\"osascript -e #{@escdq('"tell application \\"Terminal\\" to close windows 0"')} + &> /dev/null &\"") + '"; exit') + '"\''
 
     # check if cmd is built
     return true if info.cmd?
